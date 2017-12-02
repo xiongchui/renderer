@@ -3,8 +3,51 @@
 <head>
     <meta charset="utf-8">
     <title>electron</title>
+    <style>
+        #id-file-container {
+            width: 100px;
+            height: 100px;
+            border: 1px dashed lightblue;
+        }
+    </style>
 </head>
 <body>
 <h1> electron</h1>
+<div id="id-file-container"></div>
+<script src="src/js/utils.js"></script>
+<script>
+    const three = require('three')
+    log('three', three)
+
+    const bindActionDropFile = () => {
+        const div = _e('#id-file-container')
+        log('div', div)
+        div.on('drop', (e) => {
+            log('e', e)
+            e.stopPropagation()
+            e.preventDefault()
+            const file = e.dataTransfer.files[0]
+            const api = Api.single()
+            const p = api.readAsDataUrl(file)
+            p.then((e) => {
+                var img = document.createElement('img')
+                img.src = e.target.result
+                document.body.appendChild(img)
+            })
+        })
+
+        div.on('dragover', (e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            e.dataTransfer.dropEffect = 'copy'
+        })
+    }
+
+    const __main = () => {
+        bindActionDropFile()
+    }
+
+    __main()
+</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 {
-  "name": "xiongchui",
+  "name": "renderer",
   "version": "0.0.1",
   "description": "a app render stl file",
   "main": "app.js",
@@ -8,11 +8,14 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "package": "electron-packager ./ renderer --all --out ~/Desktop/renderer --overwrite --icon=./20170309040842376_easyicon_net_128.icns"
+    "package": "electron-packager ./ renderer --all --out ~/Desktop/renderer --overwrite --icon=./blue.icns"
   },
   "devDependencies": {
     "electron": "^1.7.9",
     "electron-packager": "^10.1.0",
     "electron-prebuilt": "^1.4.13"
+  },
+  "dependencies": {
+    "three": "^0.88.0"
   }
 }

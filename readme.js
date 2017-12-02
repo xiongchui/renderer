@@ -1,6 +1,6 @@
 // 「start」 测试启动方式 不要修改
 // 「package」中的 Minesweeper 修改为你的项目名称
-// 「--all」是你要大包的平台 如果是 all 会打包为全平台
+// 「--all」是你要打包的平台 如果是 all 会打包为全平台
 // 如果改为 「--Mac」则只打包为 mac 应用
 // --platform=win32 --arch=x64 打包win应用
 // 「~/Desktop/renderer」是打包后文件的生成地址 默认是桌面 可自行修改
