@@ -15,7 +15,5 @@
     "electron-packager": "^10.1.0",
     "electron-prebuilt": "^1.4.13"
   },
-  "dependencies": {
-    "three": "^0.88.0"
-  }
+  "dependencies": {}
 }

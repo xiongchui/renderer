@@ -14,40 +14,11 @@
 <body>
 <h1> electron</h1>
 <div id="id-file-container"></div>
+<canvas id="id-canvas-show" height="800" width="800"></canvas>
+<script src="src/js/three.js"></script>
+<script src="src/js/OrbitControls.js"></script>
 <script src="src/js/utils.js"></script>
-<script>
-    const three = require('three')
-    log('three', three)
-
-    const bindActionDropFile = () => {
-        const div = _e('#id-file-container')
-        log('div', div)
-        div.on('drop', (e) => {
-            log('e', e)
-            e.stopPropagation()
-            e.preventDefault()
-            const file = e.dataTransfer.files[0]
-            const api = Api.single()
-            const p = api.readAsDataUrl(file)
-            p.then((e) => {
-                var img = document.createElement('img')
-                img.src = e.target.result
-                document.body.appendChild(img)
-            })
-        })
-
-        div.on('dragover', (e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            e.dataTransfer.dropEffect = 'copy'
-        })
-    }
-
-    const __main = () => {
-        bindActionDropFile()
-    }
-
-    __main()
-</script>
+<script src="src/js/parser.js"></script>
+<script src="src/js/loader.js"></script>
 </body>
 </html>

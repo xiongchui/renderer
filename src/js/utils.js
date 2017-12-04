@@ -159,12 +159,12 @@ class Api {
         return this._ajaxSync(req)
     }
 
-    _fileReader(request) {
-        const req = {
-            progress: request.progress,
-            file: request.file,
-            method: request.method || 'text',
-            encoding: request.encoding || 'utf-8',
+    _fileReader(form) {
+        const m = {
+            progress: form.progress,
+            file: form.file,
+            method: form.method || 'text',
+            encoding: form.encoding || 'UTF-8',
         }
         const r = new FileReader()
         const mapMethod = {
@@ -173,19 +173,19 @@ class Api {
             binaryString: r.readAsBinaryString,
             arrayBuffer: r.readAsArrayBuffer,
         }
-        const fn = mapMethod[req.method]
-        if (req.method === 'text') {
-            fn.call(r, req.file, req.encoding)
+        const fn = mapMethod[m.method]
+        if (m.method === 'text') {
+            fn.call(r, m.file, m.encoding)
         } else {
-            fn.call(r, req.file)
+            fn.call(r, m.file)
         }
         const p = new Promise((resolve, reject) => {
             r.onerror = (err) => {
                 reject(err)
             }
-            if (typeof req.progress === 'function') {
+            if (typeof m.progress === 'function') {
                 r.onprogress = (e) => {
-                    fn(e)
+                    m.progress(e)
                 }
             }
             r.onload = (e) => {
@@ -196,38 +196,38 @@ class Api {
     }
 
     readAsText(file, progress, encoding) {
-        const request = {
+        const form = {
             file: file,
             progress: progress,
             encoding: encoding,
         }
-        return this._fileReader(request)
+        return this._fileReader(form)
     }
 
     readAsDataUrl(file, progress) {
-        const request = {
+        const form = {
             file: file,
             progress: progress,
             method: 'dataUrl',
         }
-        return this._fileReader(request)
+        return this._fileReader(form)
     }
 
     readAsBinaryString(file, progress) {
-        const request = {
+        const form = {
             file: file,
             progress: progress,
             method: 'binaryString',
         }
-        return this._fileReader(request)
+        return this._fileReader(form)
     }
 
     readAsArrayBuffer(file, progress) {
-        const request = {
+        const form = {
             file: file,
             progress: progress,
             method: 'arrayBuffer',
         }
-        return this._fileReader(request)
+        return this._fileReader(form)
     }
 }
