@@ -2,13 +2,13 @@
   "name": "renderer",
   "version": "0.0.1",
   "description": "a app render stl file",
-  "main": "app.js",
+  "main": "main.js",
   "repository": "https://xiongchui@github.com/xiongchui/renderer.git",
   "author": "XIONG Chui <xiongchui.coder@gmail.com>",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "package": "electron-packager ./ renderer --all --out ~/Desktop/renderer --overwrite --icon=./blue.icns"
+    "package": "electron-packager ./ renderer --all --out ~/Desktop/renderer --overwrite --icon=assets/app-icon/mac/blue.icns"
   },
   "devDependencies": {
     "electron": "^1.7.9",

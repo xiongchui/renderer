@@ -8,13 +8,13 @@ const scene = () => {
     camera.position.set(0, 0, 50)
 
     const s = new THREE.Scene()
-    s.add(new THREE.AmbientLight(0xff0000))
+    s.add(new THREE.AmbientLight(0xffffff))
 
-    const light1 = new THREE.DirectionalLight(0xffffff)
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.75)
     light1.position.set(0, 100, 100)
     s.add(light1)
 
-    const light2 = new THREE.DirectionalLight(0xffffff)
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.75)
     light2.position.set(0, -100, -100)
     s.add(light2)
 
@@ -56,11 +56,13 @@ const bindActionDropFile = () => {
         const p = api.readAsArrayBuffer(file)
         p.then((e) => {
             const s = scene()
-            const mat = new THREE.MeshPhongMaterial({
-                color: 0x339900,
-                specular: 0x030303,
+            const mat = new THREE.MeshLambertMaterial({
+                color: 0x808080,
+                overdraw: 1,
+                wireframe: false,
+                flatShading: THREE.FlatShading,
+                vertexColors: THREE.FaceColors,
             })
-            log('mat', mat)
             const buffer = e.target.result
             const geom = parsedFileStl(buffer)
             const obj = new THREE.Mesh(geom, mat)
