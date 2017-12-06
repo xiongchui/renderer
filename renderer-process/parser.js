@@ -11,18 +11,18 @@ const parsedFileStl = (buffer) => {
     // binary STL
     const view = new DataView(buffer);
     const size = view.getUint32(80, true);
-    const geom = new THREE.Geometry()
+    const g = new THREE.Geometry()
     let offset = 84
     for (var i = 0; i < size; i++) {
         const normal = binaryVector3(view, offset)
-        geom.vertices.push(binaryVector3(view, offset + 12))
-        geom.vertices.push(binaryVector3(view, offset + 24))
-        geom.vertices.push(binaryVector3(view, offset + 36))
-        geom.faces.push(
+        g.vertices.push(binaryVector3(view, offset + 12))
+        g.vertices.push(binaryVector3(view, offset + 24))
+        g.vertices.push(binaryVector3(view, offset + 36))
+        g.faces.push(
             new THREE.Face3(i * 3, i * 3 + 1, i * 3 + 2, normal))
         offset += 4 * 3 * 4 + 2
     }
-    return geom
+    return g
 }
 
 const parsedFile = (filename, buffer) => {
