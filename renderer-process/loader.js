@@ -2,9 +2,9 @@ class Renderer {
     constructor(options) {
         this.scene = new THREE.Scene()
         this.renderer = new THREE.WebGLRenderer(options)
-        this.renderer.setClearColor(0xffffff, 1);
+        this.renderer.setClearColor(0xffffff, 1)
         const {width, height} = this.renderer.domElement
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000)
+        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000)
         this.camera.position.set(0, 0, 1000)
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
         this.lights = {}
@@ -12,6 +12,8 @@ class Renderer {
         this.setControls()
         this.initLights()
         this.initCube()
+        this.initFloor()
+        this.initFog()
         this.loop()
     }
 
@@ -59,17 +61,14 @@ class Renderer {
     }
 
     initLights() {
-        const ambientLight = new THREE.AmbientLight(0x202020);
-        this.addLight('ambient', ambientLight)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75)
+        directionalLight.position.x = 1
+        directionalLight.position.y = 1
+        directionalLight.position.z = 2
+        directionalLight.position.normalize()
+        this.addLight('directional', directionalLight)
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
-        directionalLight.position.x = 1;
-        directionalLight.position.y = 1;
-        directionalLight.position.z = 2;
-        directionalLight.position.normalize();
-        this.addLight('directional', directionalLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 0.3);
+        const pointLight = new THREE.PointLight(0xffffff, 0.3)
         pointLight.position.x = 0
         pointLight.position.y = -25
         pointLight.position.z = 10
@@ -84,31 +83,55 @@ class Renderer {
     }
 
     initCube() {
-        // RGB color cube
-        var size = 80;
-        var point;
-        var cubeMaterial = new THREE.MeshBasicMaterial(
-            {color: 0xffffff, vertexColors: THREE.VertexColors});
-        var faceIndices = ['a', 'b', 'c', 'd'];
-        var cubeGeometry = new THREE.CubeGeometry(size, size, size, 1, 1, 1);
-        for (var i = 0; i < cubeGeometry.faces.length; i++) {
-            let face = cubeGeometry.faces[i];
-            // determine if current face is a tri or a quad
-            let numberOfSides = (face instanceof THREE.Face3) ? 3 : 4;
-            // assign color to each vertex of current face
-            for (var j = 0; j < numberOfSides; j++) {
-                let vertexIndex = face[faceIndices[j]];
-                // store coordinates of vertex
-                point = cubeGeometry.vertices[vertexIndex];
-                // initialize color variable
-                let color = new THREE.Color(0xffffff);
-                color.setRGB(0.5 + point.x / size, 0.5 + point.y / size, 0.5 + point.z / size);
-                face.vertexColors[j] = color;
+        let size = 80
+        let point
+        let cubeMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            vertexColors: THREE.VertexColors
+        })
+        let faceIndices = ['a', 'b', 'c', 'd']
+        let cubeGeometry = new THREE.CubeGeometry(size, size, size, 1, 1, 1)
+        for (let i = 0 ;i < cubeGeometry.faces.length; i++) {
+            let face = cubeGeometry.faces[i]
+            let numberOfSides = (face instanceof THREE.Face3) ? 3 : 4
+            for (let j = 0; j < numberOfSides; j++) {
+                let vertexIndex = face[faceIndices[j]]
+                point = cubeGeometry.vertices[vertexIndex]
+                let color = new THREE.Color(0xffffff)
+                color.setRGB(0.5 + point.x / size, 0.5 + point.y / size, 0.5 + point.z / size)
+                face.vertexColors[j] = color
             }
         }
-        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        cube.position.set(100, 50, 0);
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+        cube.position.set(100, 50, 0)
         this.addMesh('cube', cube)
+    }
+
+    initFloor() {
+        let loader = new THREE.TextureLoader()
+        loader.crossOrigin = ''
+        loader.load('assets/img/checkerboard.jpg',
+            (floorTexture) => {
+                floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
+                floorTexture.repeat.set(10, 10)
+                let floorMaterial = new THREE.MeshBasicMaterial({
+                    map: floorTexture, 
+                    side: THREE.DoubleSide
+                })
+                let floorGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10)
+                let floor = new THREE.Mesh(floorGeometry, floorMaterial)
+                floor.position.y = -0.5
+                floor.rotation.x = Math.PI / 2
+                this.addMesh('floor', floor)
+            }
+        )
+    }
+
+    initFog() {
+        let skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000)
+        let skyBoxMaterial = new THREE.MeshBasicMaterial({color: 0x9999ff, side: THREE.BackSide})
+        let skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial)
+        this.scene.add(skyBox)
     }
 
     setLight(name, options) {
@@ -120,7 +143,6 @@ class Renderer {
     }
 
     setLightByGeometry(name, geometry) {
-        const m = this.lights[name]
         const max = geometry.boundingBox.max
         const options = {
             x: max.x * 2,
@@ -131,7 +153,6 @@ class Renderer {
     }
 
     setCameraByGeometry(geometry) {
-        const m = this.camera
         const max = geometry.boundingBox.max
         const [x, y, z] = [max.x * 3, max.y * 3, max.z * 3]
         this.setCameraPosition(x, y, z)
@@ -149,40 +170,35 @@ class Renderer {
 const bindActionDropFile = () => {
     const div = _e('#id-file-container')
     div.on('drop', (e) => {
-        log('e', e)
+        const options = {
+            canvas: _e('#id-canvas-show'),
+        }
+        const r = Renderer.single(options)
         e.stopPropagation()
         e.preventDefault()
         const file = e.dataTransfer.files[0]
         const api = Api.single()
         const p = api.readAsArrayBuffer(file)
         p.then((e) => {
-            const options = {
-                canvas: _e('#id-canvas-show'),
-            }
-            const r = Renderer.single(options)
-            log(r)
-            const mat = new THREE.MeshLambertMaterial({
-                color: 0x808080,
-                overdraw: 1,
-                wireframe: false,
-                flatShading: THREE.FlatShading,
+            const mat1 = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
                 vertexColors: THREE.VertexColors,
+                wireframe: true,
             })
             const buffer = e.target.result
             const vf_data = parsedFileStl(buffer)
-
-            var geo = new THREE.Geometry();
-            geo.vertices = vf_data.vertices;
-            geo.faces = vf_data.faces;
+            let geo = new THREE.Geometry()
+            geo.vertices = vf_data.vertices
+            geo.faces = vf_data.faces
             geo.computeBoundingBox()
-            geo.computeFaceNormals();
-            geo.computeVertexNormals();
+            geo.computeFaceNormals()
+            geo.computeVertexNormals()
             geo.center()
             r.setCameraByGeometry(geo)
             r.setLightByGeometry('point', geo)
             r.setLightByGeometry('directional', geo)
-            const mesh = new THREE.Mesh(geo, mat)
-            // setColorRandom(geo)
+            const mesh = new THREE.Mesh(geo, mat1)
+            setColorRandom(geo)
             log('geo', geo)
             log('r', r)
             r.addMesh('mesh', mesh)
@@ -197,6 +213,10 @@ const bindActionDropFile = () => {
 }
 
 const __main = () => {
+    const options = {
+        canvas: _e('#id-canvas-show'),
+    }
+    const r = Renderer.single(options)
     bindActionDropFile()
 }
 

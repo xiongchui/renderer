@@ -28,48 +28,46 @@ const parsedFileStl = (buffer) => {
     let faces = []
     while (tcount--) {
         pos += 12
-        let f1 = view.getFloat32(pos, true);
-        let f2 = view.getFloat32(pos + 4, true);
-        let f3 = view.getFloat32(pos + 8, true);
-        let vertexIndex = vert_hash[[f1, f2, f3]];
+        let f1 = view.getFloat32(pos, true)
+        let f2 = view.getFloat32(pos + 4, true)
+        let f3 = view.getFloat32(pos + 8, true)
+        let vertexIndex = vert_hash[[f1, f2, f3]]
         if (vertexIndex === undefined) {
-            vertexIndex = vertices.length;
-            vertices.push(new THREE.Vector3(f1, f2, f3));
-            vert_hash[[f1, f2, f3]] = vertexIndex;
+            vertexIndex = vertices.length
+            vertices.push(new THREE.Vector3(f1, f2, f3))
+            vert_hash[[f1, f2, f3]] = vertexIndex
         }
-        let v1 = vertexIndex;
+        let v1 = vertexIndex
 
-        pos += 12;
+        pos += 12
 
-        f1 = view.getFloat32(pos, true);
-        f2 = view.getFloat32(pos + 4, true);
-        f3 = view.getFloat32(pos + 8, true);
-        vertexIndex = vert_hash[[f1, f2, f3]];
+        f1 = view.getFloat32(pos, true)
+        f2 = view.getFloat32(pos + 4, true)
+        f3 = view.getFloat32(pos + 8, true)
+        vertexIndex = vert_hash[[f1, f2, f3]]
         if (vertexIndex === undefined) {
-            vertexIndex = vertices.length;
-            vertices.push(new THREE.Vector3(f1, f2, f3));
-            vert_hash[[f1, f2, f3]] = vertexIndex;
+            vertexIndex = vertices.length
+            vertices.push(new THREE.Vector3(f1, f2, f3))
+            vert_hash[[f1, f2, f3]] = vertexIndex
         }
-        let v2 = vertexIndex;
+        let v2 = vertexIndex
 
-        pos += 12;
+        pos += 12
 
-        f1 = view.getFloat32(pos, true);
-        f2 = view.getFloat32(pos + 4, true);
-        f3 = view.getFloat32(pos + 8, true);
-        vertexIndex = vert_hash[[f1, f2, f3]];
+        f1 = view.getFloat32(pos, true)
+        f2 = view.getFloat32(pos + 4, true)
+        f3 = view.getFloat32(pos + 8, true)
+        vertexIndex = vert_hash[[f1, f2, f3]]
         if (vertexIndex === undefined) {
-            vertexIndex = vertices.length;
-            vertices.push(new THREE.Vector3(f1, f2, f3));
-            vert_hash[[f1, f2, f3]] = vertexIndex;
+            vertexIndex = vertices.length
+            vertices.push(new THREE.Vector3(f1, f2, f3))
+            vert_hash[[f1, f2, f3]] = vertexIndex
         }
-        let v3 = vertexIndex;
-        faces.push(new THREE.Face3(v1, v2, v3));
-        pos += 14;
+        let v3 = vertexIndex
+        faces.push(new THREE.Face3(v1, v2, v3))
+        pos += 14
     }
-    log('faces', faces)
-    log('ver', vertices)
-    return {vertices:vertices, faces:faces,}
+    return {vertices: vertices, faces: faces}
 }
 
 const setColorRandom = (geometry) => {
@@ -84,21 +82,21 @@ const setColorRandom = (geometry) => {
     //         face.vertexColors[j] = color
     //     }
     // }
-    var size = 10000;
-    var faceIndices = ['a', 'b', 'c', 'd'];
+    var size = 80;
+    var faceIndices = ['a', 'b', 'c', 'd']
     for (var i = 0; i < geometry.faces.length; i++) {
-        let face = geometry.faces[i];
+        let face = geometry.faces[i]
         // determine if current face is a tri or a quad
-        let numberOfSides = (face instanceof THREE.Face3) ? 3 : 4;
+        let numberOfSides = (face instanceof THREE.Face3) ? 3 : 4
         // assign color to each vertex of current face
         for (var j = 0; j < numberOfSides; j++) {
-            let vertexIndex = face[faceIndices[j]];
+            let vertexIndex = face[faceIndices[j]]
             // store coordinates of vertex
-            let point = geometry.vertices[vertexIndex];
+            let point = geometry.vertices[vertexIndex]
             // initialize color variable
-            let color = new THREE.Color(0xffffff);
+            let color = new THREE.Color(0xffffff)
             color.setRGB(0.5 + point.x / size, 0.5 + point.y / size, 0.5 + point.z / size)
-            face.vertexColors[j] = color;
+            face.vertexColors[j] = color
         }
     }
 }
