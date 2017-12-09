@@ -6,19 +6,32 @@ class Renderer {
         const {width, height} = this.renderer.domElement
         this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000)
         this.camera.position.set(0, 0, 1000)
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
         this.lights = {}
         this.meshes = {}
-        this.setControls()
+        this.initControls()
         this.initLights()
         this.initCube()
-        this.initFloor()
+        this.initGrid()
         this.initFog()
+        this.initStats()
         this.loop()
     }
 
-    setControls() {
-        let controls = this.controls
+    initStats() {
+        const stats = new Stats()
+        this.stats = stats
+        // 0: fps, 1: ms
+        // 将stats的界面对应左上角
+        stats.setMode(0)
+        stats.domElement.style.position = 'absolute'
+        stats.domElement.style.left = '0px'
+        stats.domElement.style.top = '0px'
+        document.body.appendChild(stats.domElement)
+    }
+
+    initControls() {
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement)
+        const controls = this.controls
         // 使动画循环使用时阻尼或自转 意思是否有惯性
         controls.enableDamping = true
         //动态阻尼系数 就是鼠标拖拽旋转灵敏度
@@ -39,12 +52,14 @@ class Renderer {
     loop() {
         const controls = this.controls
         const renderer = this.renderer
+        const stats = this.stats
+        controls.update()
+        stats.update()
+        renderer.clear()
+        renderer.render(this.scene, this.camera)
         requestAnimationFrame(() => {
             this.loop()
         })
-        controls.update()
-        renderer.clear()
-        renderer.render(this.scene, this.camera)
     }
 
     static single(options) {
@@ -61,18 +76,7 @@ class Renderer {
     }
 
     initLights() {
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75)
-        directionalLight.position.x = 1
-        directionalLight.position.y = 1
-        directionalLight.position.z = 2
-        directionalLight.position.normalize()
-        this.addLight('directional', directionalLight)
 
-        const pointLight = new THREE.PointLight(0xffffff, 0.3)
-        pointLight.position.x = 0
-        pointLight.position.y = -25
-        pointLight.position.z = 10
-        this.addLight('point', pointLight)
     }
 
     addLight(name, light) {
@@ -91,7 +95,7 @@ class Renderer {
         })
         let faceIndices = ['a', 'b', 'c', 'd']
         let cubeGeometry = new THREE.CubeGeometry(size, size, size, 1, 1, 1)
-        for (let i = 0 ;i < cubeGeometry.faces.length; i++) {
+        for (let i = 0; i < cubeGeometry.faces.length; i++) {
             let face = cubeGeometry.faces[i]
             let numberOfSides = (face instanceof THREE.Face3) ? 3 : 4
             for (let j = 0; j < numberOfSides; j++) {
@@ -107,29 +111,16 @@ class Renderer {
         this.addMesh('cube', cube)
     }
 
-    initFloor() {
-        let loader = new THREE.TextureLoader()
-        loader.crossOrigin = ''
-        loader.load('assets/img/checkerboard.jpg',
-            (floorTexture) => {
-                floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
-                floorTexture.repeat.set(10, 10)
-                let floorMaterial = new THREE.MeshBasicMaterial({
-                    map: floorTexture, 
-                    side: THREE.DoubleSide
-                })
-                let floorGeometry = new THREE.PlaneGeometry(1000, 1000, 10, 10)
-                let floor = new THREE.Mesh(floorGeometry, floorMaterial)
-                floor.position.y = -0.5
-                floor.rotation.x = Math.PI / 2
-                this.addMesh('floor', floor)
-            }
-        )
+
+    initGrid() {
+        let grid = new THREE.GridHelper(3000, 20, 0xffffff, 0x55555)
+        grid.rotateOnAxis(new THREE.Vector3(1, 0, 0), 90 * (Math.PI / 180))
+        this.addMesh('grid', grid)
     }
 
     initFog() {
         let skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000)
-        let skyBoxMaterial = new THREE.MeshBasicMaterial({color: 0x9999ff, side: THREE.BackSide})
+        let skyBoxMaterial = new THREE.MeshBasicMaterial({color: 0x87cefa, side: THREE.BackSide})
         let skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial)
         this.scene.add(skyBox)
     }
@@ -180,27 +171,9 @@ const bindActionDropFile = () => {
         const api = Api.single()
         const p = api.readAsArrayBuffer(file)
         p.then((e) => {
-            const mat1 = new THREE.MeshBasicMaterial({
-                color: 0xffffff,
-                vertexColors: THREE.VertexColors,
-                wireframe: true,
-            })
             const buffer = e.target.result
-            const vf_data = parsedFileStl(buffer)
-            let geo = new THREE.Geometry()
-            geo.vertices = vf_data.vertices
-            geo.faces = vf_data.faces
-            geo.computeBoundingBox()
-            geo.computeFaceNormals()
-            geo.computeVertexNormals()
-            geo.center()
-            r.setCameraByGeometry(geo)
-            r.setLightByGeometry('point', geo)
-            r.setLightByGeometry('directional', geo)
-            const mesh = new THREE.Mesh(geo, mat1)
-            setColorRandom(geo)
-            log('geo', geo)
-            log('r', r)
+            const parser = Parser.single()
+            const mesh = parser.parsedFile(file.name, buffer)
             r.addMesh('mesh', mesh)
         })
     })
