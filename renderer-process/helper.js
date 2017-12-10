@@ -53,7 +53,7 @@ class Helper {
         }
     }
 
-    cubergb() {
+    cubeRgb() {
         let size = 80
         let material = new THREE.MeshBasicMaterial({
             color: 0xffffff,

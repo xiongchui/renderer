@@ -25,7 +25,6 @@ class Renderer {
         this.initCamera()
         this.initControls()
         this.initGui()
-        this.initGrid()
         this.initLights()
         this.initFog()
         this.initStats()
@@ -37,7 +36,12 @@ class Renderer {
         const gui = new dat.GUI()
         this.gui = gui
         const sample = {
-            'cube': true,
+            cube: true,
+            guitar: true,
+        }
+        const mapInit = {
+            cube: this.initCube,
+            guitar: this.initGuitar,
         }
         const f = gui.addFolder('sample')
         f.add(sample, 'cube').onChange((value) => {
@@ -49,16 +53,32 @@ class Renderer {
                 this.removeMesh('rgbCube')
             }
         })
-        if (sample.cube) {
-            this.initCube()
-        }
+        f.add(sample, 'guitar').onChange((value) => {
+            if (value) {
+                this.initGuitar()
+            } else {
+                this.removeMesh('guitar')
+            }
+        })
+        this.initGrid()
+        Object.keys(sample).forEach((k) => {
+            if (sample[k]) {
+                mapInit[k].call(this)
+            }
+        })
+    }
+
+    initGuitar() {
+        const parser = Parser.single()
+        const mesh = parser.guitar()
+        this.addMesh('guitar', mesh)
     }
 
     initCube() {
         const helper = Helper.single()
         const c1 = helper.cubeFace()
         const c2 = helper.cubeVertex()
-        const c3 = helper.cubergb()
+        const c3 = helper.cubeRgb()
         this.addMesh('faceCube', c1)
         this.addMesh('vertexCube', c2)
         this.addMesh('rgbCube', c3)

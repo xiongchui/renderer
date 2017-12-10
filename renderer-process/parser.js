@@ -100,4 +100,16 @@ class Parser {
         const mesh = new THREE.Mesh(geometry, material)
         return mesh
     }
+
+    guitar() {
+        const fs = require('fs')
+        const path = require('path')
+        const name = 'guitar.stl'
+        const p = path.join('assets', name)
+        const buffer = fs.readFileSync(p)
+        const arrayBuffer = new Uint8Array(buffer).buffer
+        const mesh  = this.parsedFile(name, arrayBuffer)
+        mesh.name = 'guitar'
+        return mesh
+    }
 }
