@@ -2,24 +2,25 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>electron</title>
+    <title>stl renderer</title>
     <style>
-        #id-file-container {
-            width: 100px;
-            height: 100px;
-            border: 1px dashed lightblue;
+        #id-div-container {
+            position: absolute;
+            left: 0;
+            top: 0;
         }
     </style>
 </head>
 <body>
-<h1> electron</h1>
-<div id="id-file-container"></div>
-<canvas id="id-canvas-show" height="800" width="800"></canvas>
+<div id="id-div-container"></div>
 
 <script src="renderer-process/three.js"></script>
 <script src="renderer-process/OrbitControls.js"></script>
 <script src="renderer-process/stats.min.js"></script>
 <script src="renderer-process/dat.gui.js"></script>
+<script src="renderer-process/THREEx.KeyboardState.js"></script>
+<script src="renderer-process/THREEx.FullScreen.js"></script>
+<script src="renderer-process/THREEx.WindowResize.js"></script>
 
 <script src="renderer-process/utils.js"></script>
 <script src="renderer-process/helper.js"></script>

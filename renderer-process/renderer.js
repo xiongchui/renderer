@@ -1,20 +1,48 @@
 class Renderer {
-    constructor(options) {
-        this.scene = new THREE.Scene()
-        this.renderer = new THREE.WebGLRenderer(options)
-        this.renderer.setClearColor(0xffffff, 1)
-        const {width, height} = this.renderer.domElement
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000)
-        this.camera.position.set(0, 0, 1000)
-        this.lights = {}
-        this.meshes = {}
+    constructor() {
+        this.setup()
+        this.initRender()
+        this.initCamera()
         this.initControls()
         this.initLights()
         this.initCube()
         this.initGrid()
         this.initFog()
         this.initStats()
+        this.bindEvents()
         this.loop()
+    }
+
+    setup() {
+        this.scene = new THREE.Scene()
+        this.lights = {}
+        this.meshes = {}
+    }
+
+    initRender() {
+        const options = {
+            antialias: true,
+        }
+        const r = new THREE.WebGLRenderer(options)
+        r.setClearColor(0xffffff, 1)
+        const [w, h] = [window.innerWidth, window.innerHeight]
+        r.setSize(w, h)
+        const div = _e('#id-div-container')
+        div.appendChild(r.domElement)
+        this.renderer = r
+    }
+
+    initCamera() {
+        const [w, h] = [window.innerWidth, window.innerHeight]
+        this.camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 20000)
+        this.camera.position.set(0, 0, 1000)
+    }
+
+    bindEvents() {
+        THREEx.WindowResize(this.renderer, this.camera)
+        THREEx.FullScreen.bindKey({
+            charCode: 'm'.charCodeAt(0),
+        })
     }
 
     initStats() {

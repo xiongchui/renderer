@@ -1,10 +1,7 @@
 const bindActionDropFile = () => {
-    const div = _e('#id-file-container')
+    const div = _e('#id-div-container')
     div.on('drop', (e) => {
-        const options = {
-            canvas: _e('#id-canvas-show'),
-        }
-        const r = Renderer.single(options)
+        const r = Renderer.single()
         e.stopPropagation()
         e.preventDefault()
         const file = e.dataTransfer.files[0]
@@ -14,7 +11,7 @@ const bindActionDropFile = () => {
             const buffer = e.target.result
             const parser = Parser.single()
             const mesh = parser.parsedFile(file.name, buffer)
-            r.addMesh('mesh', mesh)
+            r.addMesh(file.name, mesh)
         })
     })
 
@@ -26,10 +23,7 @@ const bindActionDropFile = () => {
 }
 
 const __main = () => {
-    const options = {
-        canvas: _e('#id-canvas-show'),
-    }
-    const r = Renderer.single(options)
+    const r = Renderer.single()
     bindActionDropFile()
 }
 
