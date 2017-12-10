@@ -25,9 +25,8 @@ class Renderer {
         this.initCamera()
         this.initControls()
         this.initGui()
-        this.initLights()
         this.initGrid()
-        this.initCube()
+        this.initLights()
         this.initFog()
         this.initStats()
         this.bindEvents()
@@ -35,22 +34,60 @@ class Renderer {
     }
 
     initGui() {
-        this.gui = new dat.GUI()
+        const gui = new dat.GUI()
+        this.gui = gui
+        const sample = {
+            'cube': true,
+        }
+        const f = gui.addFolder('sample')
+        f.add(sample, 'cube').onChange((value) => {
+            if (value) {
+                this.initCube()
+            } else {
+                this.removeMesh('faceCube')
+                this.removeMesh('vertexCube')
+                this.removeMesh('rgbCube')
+            }
+        })
+        if (sample.cube) {
+            this.initCube()
+        }
     }
+
+    initCube() {
+        const helper = Helper.single()
+        const c1 = helper.cubeFace()
+        const c2 = helper.cubeVertex()
+        const c3 = helper.cubergb()
+        this.addMesh('faceCube', c1)
+        this.addMesh('vertexCube', c2)
+        this.addMesh('rgbCube', c3)
+    }
+
+    removeMesh(name, mesh) {
+        const ms = this.meshes
+        delete ms[name]
+        if (mesh === undefined) {
+            mesh = this.scene.getObjectByName(name)
+        }
+        this.scene.remove(mesh)
+        this.gui.removeFolder(name)
+    }
+
 
     setGuiByMesh(name, mesh) {
         const material = mesh.material
         const geometry = mesh.geometry
         const gui = this.gui
         const f = gui.addFolder(name)
-        f.add(material, 'transparent')
-        f.add(material, 'opacity', 0, 1)
         const r = {
             '移除': () => {
-                this.scene.remove(mesh)
-                this.gui.removeFolder(name)
+                this.removeMesh(name, mesh)
             }
         }
+        f.add(r, '移除')
+        f.add(material, 'transparent')
+        f.add(material, 'opacity', 0, 1)
         const isBasic = material instanceof THREE.MeshBasicMaterial
         const isPhong = material instanceof THREE.MeshPhongMaterial
 
@@ -64,7 +101,6 @@ class Renderer {
         if (isPhong) {
             f.add(material, 'shininess', 0, 100)
         }
-        f.add(r, '移除')
     }
 
     needsUpdate(material, geometry) {
@@ -185,21 +221,6 @@ class Renderer {
         scene.add(light)
     }
 
-    initCube() {
-        let size = 80
-        let point
-        let cubeMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            vertexColors: THREE.VertexColors
-        })
-        let cubeGeometry = new THREE.CubeGeometry(size, size, size, 1, 1, 1)
-        const helper = Helper.single()
-        helper.setGeometryVertexRandomColor(cubeGeometry)
-        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
-        cube.position.set(100, 50, 0)
-        this.addMesh('cube', cube)
-    }
-
     initGrid() {
         let grid = new THREE.GridHelper(3000, 20, 0xffffff, 0x55555)
         grid.rotateOnAxis(new THREE.Vector3(1, 0, 0), 90 * (Math.PI / 180))
@@ -208,7 +229,10 @@ class Renderer {
 
     initFog() {
         let skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000)
-        let skyBoxMaterial = new THREE.MeshBasicMaterial({color: 0x87cefa, side: THREE.BackSide})
+        let skyBoxMaterial = new THREE.MeshBasicMaterial({
+            color: 0x87cefa,
+            side: THREE.BackSide
+        })
         let skyBox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial)
         this.scene.add(skyBox)
     }

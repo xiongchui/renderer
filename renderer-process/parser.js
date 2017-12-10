@@ -13,7 +13,7 @@ class Parser {
         const geometry = this.geometryFromObject(r)
         this.computeParams(geometry)
         const helper = Helper.single()
-        helper.setGeometryVertexRandomColor(geometry)
+        helper.setGeometryRgb(geometry)
         const mesh = this.meshFromGeometry(geometry)
         return mesh
     }
