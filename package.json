@@ -8,7 +8,10 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "package": "electron-packager ./ renderer --all --out ~/Desktop/renderer --overwrite --icon=assets/app-icon/mac/blue.icns"
+    "package": "electron-packager . renderer --overwrite  --all --out=dst --icon=assets/app-icon/mac/app.icns --ignore=node_modules/electron-* --ignore=node_modules/.bin --ignore=.git --ingone=dst",
+    "package:mac": "electron-packager . renderer --overwrite --platform=darwin --arch=x64 --out=dst --icon=assets/app-icon/mac/app.icns --ignore=node_modules/electron-* --ignore=node_modules/.bin --ignore=.git --ingone=dst",
+    "package:win": "electron-packager . renderer --overwrite --platform=win32 --arch=ia32 --out=dst --icon=assets/app-icon/win/app.ico --ignore=node_modules/electron-* --ignore=node_modules/.bin --ignore=.git --ingone=dst",
+    "package:linux": "electron-packager . renderer --overwrite --platform=linux --arch=x64 --out=dst --icon=assets/app-icon/linux/app.png --ignore=node_modules/electron-* --ignore=node_modules/.bin --ignore=.git --ingone=dst"
   },
   "devDependencies": {
     "electron": "^1.7.9",
