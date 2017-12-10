@@ -28,3 +28,4 @@ const __main = () => {
 }
 
 __main()
+const r = Renderer.single()

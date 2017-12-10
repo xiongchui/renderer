@@ -1,16 +1,81 @@
+const constants = {
+    colors: {
+        "THREE.NoColors": THREE.NoColors,
+        "THREE.FaceColors": THREE.FaceColors,
+        "THREE.VertexColors": THREE.VertexColors,
+    },
+}
+
+// dat gui shim
+dat.GUI.prototype.removeFolder = function (name) {
+    var folder = this.__folders[name]
+    if (!folder) {
+        return
+    }
+    folder.close()
+    this.__ul.removeChild(folder.domElement.parentNode)
+    delete this.__folders[name]
+    this.onResize()
+}
+
 class Renderer {
     constructor() {
         this.setup()
         this.initRender()
         this.initCamera()
         this.initControls()
+        this.initGui()
         this.initLights()
-        this.initCube()
         this.initGrid()
+        this.initCube()
         this.initFog()
         this.initStats()
         this.bindEvents()
         this.loop()
+    }
+
+    initGui() {
+        this.gui = new dat.GUI()
+    }
+
+    setGuiByMesh(name, mesh) {
+        const material = mesh.material
+        const geometry = mesh.geometry
+        const gui = this.gui
+        const f = gui.addFolder(name)
+        f.add(material, 'transparent')
+        f.add(material, 'opacity', 0, 1)
+        const r = {
+            '移除': () => {
+                this.scene.remove(mesh)
+                this.gui.removeFolder(name)
+            }
+        }
+        const isBasic = material instanceof THREE.MeshBasicMaterial
+        const isPhong = material instanceof THREE.MeshPhongMaterial
+
+        const func = this.needsUpdate(material, geometry)
+        if (isBasic || isPhong) {
+            f.add(material, 'wireframe')
+            f.add(material, 'wireframeLinewidth', 0, 10)
+            f.add(material, 'flatShading').onChange(func)
+            f.add(material, 'vertexColors', constants.colors).onChange(func)
+        }
+        if (isPhong) {
+            f.add(material, 'shininess', 0, 100)
+        }
+        f.add(r, '移除')
+    }
+
+    needsUpdate(material, geometry) {
+        return () => {
+            material.vertexColors = +material.vertexColors
+            material.side = +material.side
+            material.needsUpdate = true
+            geometry.verticesNeedUpdate = true
+            geometry.normalsNeedUpdate = true
+            geometry.colorsNeedUpdate = true
+        }
     }
 
     setup() {
@@ -98,13 +163,19 @@ class Renderer {
     }
 
     addMesh(name, mesh) {
+        this.setCameraByMesh(mesh)
         const ms = this.meshes
         ms[name] = mesh
         this.scene.add(mesh)
+        this.setGuiByMesh(name, mesh)
     }
 
     initLights() {
-
+        const al = new THREE.AmbientLight(0xffffff, 0.5)
+        this.addLight('ambient', al)
+        const dl = new THREE.DirectionalLight(0xffffff, 0.5)
+        dl.position.set(1, 1, 1)
+        this.addLight('directional', dl)
     }
 
     addLight(name, light) {
@@ -142,27 +213,12 @@ class Renderer {
         this.scene.add(skyBox)
     }
 
-    setLight(name, options) {
-        const m = this.lights[name]
-        const attrs = ['x', 'y', 'z']
-        attrs.forEach(key => {
-            m.position[key] = options[key]
-        })
-    }
-
-    setLightByGeometry(name, geometry) {
+    setCameraByMesh(mesh) {
+        const geometry = mesh.geometry
+        geometry.computeBoundingBox()
         const max = geometry.boundingBox.max
-        const options = {
-            x: max.x * 2,
-            y: max.y * 2,
-            z: max.z * 2,
-        }
-        this.setLight(name, options)
-    }
-
-    setCameraByGeometry(geometry) {
-        const max = geometry.boundingBox.max
-        const [x, y, z] = [max.x * 3, max.y * 3, max.z * 3]
+        const p = mesh.position
+        const [x, y, z] = [0, p.y - max.y * 10, p.z + max.z * 5]
         this.setCameraPosition(x, y, z)
     }
 

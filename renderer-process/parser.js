@@ -59,11 +59,21 @@ class Parser {
         return r
     }
 
-    materialDefault() {
-        const m = new THREE.MeshBasicMaterial({
+    materialPhong() {
+        const m = new THREE.MeshPhongMaterial({
             color: 0xffffff,
             vertexColors: THREE.VertexColors,
-            wireframe: true,
+        })
+        return m
+    }
+
+    materialLabert() {
+        const m = new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            overdraw: 1,
+            wireframe: false,
+            shading: THREE.FlatShading,
+            vertexColors: THREE.FaceColors
         })
         return m
     }
@@ -86,7 +96,7 @@ class Parser {
     }
 
     meshFromGeometry(geometry) {
-        const material = this.materialDefault()
+        const material = this.materialPhong()
         const mesh = new THREE.Mesh(geometry, material)
         return mesh
     }
