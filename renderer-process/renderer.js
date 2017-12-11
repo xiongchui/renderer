@@ -151,8 +151,7 @@ class Renderer {
         r.setClearColor(0xffffff, 1)
         const [w, h] = [window.innerWidth, window.innerHeight]
         r.setSize(w, h)
-        const div = _e('#id-div-container')
-        div.appendChild(r.domElement)
+        document.body.appendChild(r.domElement)
         this.renderer = r
     }
 

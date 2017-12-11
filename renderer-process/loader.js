@@ -1,5 +1,5 @@
 const bindActionDropFile = () => {
-    const div = _e('#id-div-container')
+    const div = _e('canvas')
     div.on('drop', (e) => {
         const r = Renderer.single()
         e.stopPropagation()
