@@ -25,6 +25,7 @@ class Renderer {
         this.initCamera()
         this.initControls()
         this.initGui()
+        this.initSamples()
         this.initLights()
         this.initFog()
         this.initStats()
@@ -32,61 +33,63 @@ class Renderer {
         this.loop()
     }
 
+    initSamples() {
+        this.samples = {
+            grid: true,
+            vertexCube: false,
+            faceCube: false,
+            rgbCube: false,
+            guitar: true,
+        }
+        const helper = Helper.single()
+        this.mapAction = {
+            grid: this.grid,
+            vertexCube: helper.cubeVertex.bind(helper),
+            faceCube: helper.cubeFace.bind(helper),
+            rgbCube: helper.cubeRgb.bind(helper),
+            guitar: this.guitar,
+        }
+        const gui = this.gui
+        const f = gui.addFolder('sample')
+        Object.keys(this.samples).forEach(k => {
+            if (this.samples[k]) {
+                const fn = this.mapAction[k]
+                const mesh = fn()
+                this.addMesh(k, mesh)
+            }
+            const controller = f.add(this.samples, k)
+            this.guiCotrollers[k] = controller
+            controller.onChange((value) => {
+                if (value) {
+                    const fn = this.mapAction[k]
+                    const mesh = fn()
+                    this.addMesh(k, mesh)
+                } else {
+                    this.removeMesh(k)
+                }
+            })
+        })
+    }
+
     initGui() {
         const gui = new dat.GUI()
         this.gui = gui
-        const sample = {
-            cube: true,
-            guitar: true,
-        }
-        const mapInit = {
-            cube: this.initCube,
-            guitar: this.initGuitar,
-        }
-        const f = gui.addFolder('sample')
-        f.add(sample, 'cube').onChange((value) => {
-            if (value) {
-                this.initCube()
-            } else {
-                this.removeMesh('faceCube')
-                this.removeMesh('vertexCube')
-                this.removeMesh('rgbCube')
-            }
-        })
-        f.add(sample, 'guitar').onChange((value) => {
-            if (value) {
-                this.initGuitar()
-            } else {
-                this.removeMesh('guitar')
-            }
-        })
-        this.initGrid()
-        Object.keys(sample).forEach((k) => {
-            if (sample[k]) {
-                mapInit[k].call(this)
-            }
-        })
+        this.guiCotrollers = {}
     }
 
-    initGuitar() {
+    guitar() {
         const parser = Parser.single()
         const mesh = parser.guitar()
-        this.addMesh('guitar', mesh)
-    }
-
-    initCube() {
-        const helper = Helper.single()
-        const c1 = helper.cubeFace()
-        const c2 = helper.cubeVertex()
-        const c3 = helper.cubeRgb()
-        this.addMesh('faceCube', c1)
-        this.addMesh('vertexCube', c2)
-        this.addMesh('rgbCube', c3)
+        return mesh
     }
 
     removeMesh(name, mesh) {
         const ms = this.meshes
         delete ms[name]
+        if (name in this.samples) {
+            this.samples[name] = false
+            this.guiCotrollers[name].updateDisplay()
+        }
         if (mesh === undefined) {
             mesh = this.scene.getObjectByName(name)
         }
@@ -101,11 +104,11 @@ class Renderer {
         const gui = this.gui
         const f = gui.addFolder(name)
         const r = {
-            '移除': () => {
+            remove: () => {
                 this.removeMesh(name, mesh)
             }
         }
-        f.add(r, '移除')
+        f.add(r, 'remove')
         f.add(material, 'transparent')
         f.add(material, 'opacity', 0, 1)
         const isBasic = material instanceof THREE.MeshBasicMaterial
@@ -219,11 +222,15 @@ class Renderer {
     }
 
     addMesh(name, mesh) {
-        this.setCameraByMesh(mesh)
         const ms = this.meshes
-        ms[name] = mesh
-        this.scene.add(mesh)
-        this.setGuiByMesh(name, mesh)
+        if (ms[name] === undefined) {
+            ms[name] = mesh
+            this.setCameraByMesh(mesh)
+            this.scene.add(mesh)
+            this.setGuiByMesh(name, mesh)
+        } else {
+            alert('this model has been in the scene')
+        }
     }
 
     initLights() {
@@ -241,10 +248,11 @@ class Renderer {
         scene.add(light)
     }
 
-    initGrid() {
-        let grid = new THREE.GridHelper(3000, 20, 0xffffff, 0x55555)
+    grid() {
+        const grid = new THREE.GridHelper(3000, 20, 0xffffff, 0x55555)
         grid.rotateOnAxis(new THREE.Vector3(1, 0, 0), 90 * (Math.PI / 180))
-        this.addMesh('grid', grid)
+        grid.name = 'grid'
+        return grid
     }
 
     initFog() {
