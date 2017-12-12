@@ -1,13 +1,6 @@
-class Helper {
+class Helper extends Singleton {
     constructor() {
-
-    }
-
-    static single(options) {
-        if (this._instance === undefined) {
-            this._instance = new this(options)
-        }
-        return this._instance
+        super()
     }
 
     setGeometryRgb(geometry) {
@@ -49,7 +42,7 @@ class Helper {
     setGeometryVertexColor(geometry) {
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i]
-            face.color.setRGB(Math.random(), Math.random(), Math.random());
+            face.color.setRGB(Math.random(), Math.random(), Math.random())
         }
     }
 
@@ -57,7 +50,7 @@ class Helper {
         let size = 80
         let material = new THREE.MeshBasicMaterial({
             color: 0xffffff,
-            vertexColors: THREE.VertexColors
+            vertexColors: THREE.VertexColors,
         })
         let geometry = new THREE.CubeGeometry(size, size, size, 1, 1, 1)
         this.setGeometryRgb(geometry)

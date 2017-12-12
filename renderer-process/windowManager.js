@@ -1,16 +1,10 @@
-class WindowManager {
+class WindowManager extends Singleton {
     constructor() {
+        super()
         this.bs = require('electron').remote.BrowserWindow
         this.path = require('path')
         this.url = require('url')
         this.windows = {}
-    }
-
-    static single() {
-        if (this._instance === undefined) {
-            this._instance = new this()
-        }
-        return this._instance
     }
 
     createWindow(name, template) {

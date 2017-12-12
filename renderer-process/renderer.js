@@ -18,8 +18,9 @@ dat.GUI.prototype.removeFolder = function (name) {
     this.onResize()
 }
 
-class Renderer {
+class Renderer extends Singleton {
     constructor() {
+        super()
         this.setup()
         this.initRender()
         this.initCamera()
@@ -58,7 +59,7 @@ class Renderer {
                 this.addMesh(k, mesh)
             }
             const controller = f.add(this.samples, k)
-            this.guiCotrollers[k] = controller
+            this.guiControllers[k] = controller
             controller.onChange((value) => {
                 if (value) {
                     const fn = this.mapAction[k]
@@ -74,7 +75,7 @@ class Renderer {
     initGui() {
         const gui = new dat.GUI()
         this.gui = gui
-        this.guiCotrollers = {}
+        this.guiControllers = {}
     }
 
     guitar() {
@@ -88,7 +89,7 @@ class Renderer {
         delete ms[name]
         if (name in this.samples) {
             this.samples[name] = false
-            this.guiCotrollers[name].updateDisplay()
+            this.guiControllers[name].updateDisplay()
         }
         if (mesh === undefined) {
             mesh = this.scene.getObjectByName(name)
@@ -96,7 +97,6 @@ class Renderer {
         this.scene.remove(mesh)
         this.gui.removeFolder(name)
     }
-
 
     setGuiByMesh(name, mesh) {
         const material = mesh.material
@@ -211,13 +211,6 @@ class Renderer {
         requestAnimationFrame(() => {
             this.loop()
         })
-    }
-
-    static single(options) {
-        if (this._instance === undefined) {
-            this._instance = new this(options)
-        }
-        return this._instance
     }
 
     addMesh(name, mesh) {

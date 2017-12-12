@@ -1,6 +1,6 @@
-class Parser {
+class Parser extends Singleton {
     constructor() {
-
+        super()
     }
 
     parsedFile(filename, buffer) {
@@ -16,13 +16,6 @@ class Parser {
         helper.setGeometryRgb(geometry)
         const mesh = this.meshFromGeometry(geometry)
         return mesh
-    }
-
-    static single(...args) {
-        if (this._instance === undefined) {
-            this._instance = new this(...args)
-        }
-        return this._instance
     }
 
     _vertexIndex(dataView, offset, geometry, map) {
@@ -67,7 +60,7 @@ class Parser {
         return m
     }
 
-    materialLabert() {
+    materialLambert() {
         const m = new THREE.MeshLambertMaterial({
             color: 0xffffff,
             overdraw: 1,
@@ -105,12 +98,10 @@ class Parser {
         const fs = require('fs')
         const path = require('path')
         const name = 'guitar.stl'
-        log(__dirname)
         const p = path.join(__dirname, 'assets', name)
-        log('p', p)
         const buffer = fs.readFileSync(p)
         const arrayBuffer = new Uint8Array(buffer).buffer
-        const mesh  = this.parsedFile(name, arrayBuffer)
+        const mesh = this.parsedFile(name, arrayBuffer)
         mesh.name = 'guitar'
         return mesh
     }

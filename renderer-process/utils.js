@@ -231,3 +231,12 @@ class Api {
         return this._fileReader(form)
     }
 }
+
+class Singleton {
+    static single(...args) {
+        if (this._instance === undefined) {
+            this._instance = new this(...args)
+        }
+        return this._instance
+    }
+}
